@@ -100,6 +100,34 @@ app.post('/sendRequests', (req, res) => {
     });
   });
 });
+
+app.get('/SentRequests',(req,res) => {
+  const authHeader = req.headers['authorization'];
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ message: 'Invalid Authorization header' });
+  }
+  const token = authHeader.slice(7); // Extract the token from the Authorization header
+  if (!token) {
+    return res.status(401).json({ message: 'You are not authorized to send requests' });
+  }
+  jwt.verify(token, 'your-secret-key', (err, decoded) => {
+    if (err) {
+      res.status(401).json({ message: 'Invalid or expired token' });
+      return;
+    }
+    const { email, role_name } = decoded;
+    const query = "SELECT request_id, to_email, url, DATE_FORMAT(created_date, '%Y-%m-%d %H:%i:%s') AS created_date, DATE_FORMAT(updated_date, '%Y-%m-%d %H:%i:%s') AS updated_date FROM rc_requests WHERE is_answered = 'Y' and from_email = ?";
+    connection.query(query, [email], (err, results) => {
+      if (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Failed to fetch requests' });
+      } else {
+        res.json({ sentRequests: results });
+      }
+    });
+  });
+
+});
 app.get('/stakeholderNames', (req, res) => {
   const query = 'SELECT DISTINCT role_name FROM rc_questions';
   connection.query(query, (err, results) => {
@@ -132,7 +160,7 @@ app.post('/questions', (req, res) => {
 app.get('/api/requests', (req, res) => {
   const { userEmail } = req.query;
   console.log('email1:',userEmail);
-  const query = 'SELECT request_id, from_email, url FROM rc_requests WHERE to_email = ?';
+  const query = "SELECT request_id, from_email, url FROM rc_requests WHERE is_answered ='N' and to_email = ?";
   connection.query(query, [userEmail], (err, results) => {
     if (err) {
       console.error(err);
@@ -168,7 +196,35 @@ app.post('/api/answers', (req, res) => {
       console.error(err);
       res.status(500).json({ message: 'Failed to save answers' });
     } else {
-      res.json({ message: 'Answers saved successfully' });
+      const updateQuery = 'UPDATE rc_requests SET is_answered = ?, updated_date = NOW() WHERE request_id = ?';
+      const updateValues = ['Y', requestId];
+      connection.query(updateQuery, updateValues, (err, results) => {
+        if (err) {
+          console.error(err);
+          res.status(500).json({ message: 'Failed to update request' });
+        } else {
+          res.json({ message: 'Answers saved successfully' });
+        }
+      });
+    }
+  });
+});
+
+app.post(`/api/QuesAns`, (req, res) => {
+  //const { name, requestId } = req.query;
+  const { userEmail } = req.query;
+  const { requestId } = req.body;
+  console.log("name:","req", requestId, userEmail);
+  const query = "select a.question_id, q.question, a.answer from rc_questions q, rc_answers a, rc_requests r where r.request_id = ? and r.request_id = a.request_id and a.question_id = q.question_id and r.is_answered = 'Y' and r.from_email =?";  
+  connection.query(query, [requestId, userEmail], (err, results) => {
+    if (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Failed to fetch questions' });
+    } else {
+      //const questions = results.map(result => result.question);
+      //res.json({ questions });
+      res.json({ questions: results });
+      //console.log(results);
     }
   });
 });

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import QuestionPage from './QuestionPage';
+import './App.css';
 
 function ClientPortal(props) {
   const [requests, setRequests] = useState([]);
@@ -31,8 +32,12 @@ function ClientPortal(props) {
 
   return (
     <Router>
-      <div>
-        <h1>Welcome to client portal</h1>
+      <div className="container">
+        <div className="header">
+        <h4>Requirements Questionnaire Tool</h4>
+        <button className="logout-btn" onClick={() => { localStorage.clear(); window.location.reload(); window.location.href = '/'; }}>Logout</button>
+        </div>
+        <div className="requests">
         <h2>Your Requests:</h2>
         {requests.length > 0 ? (
           <ol>
@@ -46,7 +51,8 @@ function ClientPortal(props) {
                   Question Link:{' '}
                   <Link to={{ 
                     pathname: `/requests/${request.request_id}`, 
-                    state: { requestId: request.request_id } }} >
+                    state: { requestId: request.request_id } }} 
+                    onClick={() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' })}>
                     {request.url}
                   </Link>
                 </p>
@@ -56,13 +62,16 @@ function ClientPortal(props) {
         ) : (
           <div>No requests found.</div>
         )}
+        </div>
 
+        
         <Switch>
           <Route path="/requests/:requestId">
             <QuestionPage />
           </Route>
         </Switch>
       </div>
+      
     </Router>
   );
 }

@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useHistory } from 'react-router-dom';
+import { useHistory,useLocation } from 'react-router-dom';
+import Navbar from './Navbar';
+import './App.css';
 
-function ClientPortal() {
+function DeveloperPortal() {
   const [send_to, setSendTo] = useState('');
   const [stakeholderNames, setStakeholderNames] = useState([]);
   const [selectedName, setSelectedName] = useState('');
   const [questions, setQuestions] = useState([]);
   const history = useHistory();
+  const location = useLocation();
 
   useEffect(() => {
     //const token = localStorage.getItem('token');
@@ -64,20 +67,32 @@ function ClientPortal() {
     });
 
     if (response.ok) {
-      alert('Request sent!');
-      send_to ='';
-      setSelectedName('');
-      setQuestions([]);
-      history.push('/DeveloperPortal');
+      if (window.confirm('Request sent!')) {
+        setSendTo('');
+        setSelectedName('');
+        setQuestions([]);
+        history.push('/DeveloperPortal');
+      }
     } else {
-      alert('Failed to send request.');
+      if (window.confirm('Failed to send request.')) {
+        setSendTo('');
+        setSelectedName('');
+        setQuestions([]);
+        history.push('/DeveloperPortal');
+      }
+      //alert('Failed to send request.');
       console.error('Failed to send request:', response.status);
     }
+    
   };
 
   return (
-    <div>
-      <h1>Welcome to developer portal</h1>
+    <div className="container">
+      <div className="header" style={{ display: 'flex', alignItems: 'center' }}>
+        <h4 style={{ flex: 1 }}>Requirements Questionnaire Tool</h4>
+        {location.pathname === '/DeveloperPortal' && <Navbar />}
+      </div><br /><br />
+      <h3>Enter the below details to send questions to client:</h3>
       <form onSubmit={handleSubmit}>
       <label>
           Send to:
@@ -105,10 +120,10 @@ function ClientPortal() {
           </div>
         }
         <button type="submit" disabled={!selectedName || questions.length === 0}>Submit request</button>
-        <button type="button" onClick={() => { setSelectedName(''); setQuestions([]); }}>Cancel</button>
+        <button type="button" disabled={!selectedName || questions.length === 0} onClick={() => { setSelectedName(''); setQuestions([]); setSendTo(''); }}>Cancel</button>
       </form>
     </div>
   );
 }
 
-export default ClientPortal;
+export default DeveloperPortal;

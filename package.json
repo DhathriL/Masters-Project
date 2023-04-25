@@ -3,6 +3,8 @@
     "cookie-parser": "^1.4.6",
     "express-session": "^1.17.3",
     "jsonwebtoken": "^9.0.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.5.28",
     "react-router-dom": "^6.9.0",
     "shortid": "^2.2.16"
   }
