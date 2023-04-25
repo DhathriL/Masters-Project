@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import './App.css';
 
 function SignIn() {
   const [email, setEmail] = useState("");
@@ -38,22 +39,26 @@ function SignIn() {
   }
 
   return (
-    <div>
-      <h1>Sign In</h1>
+    <div className="container">
+      <div className="header">
+      <h4>Requirements Questionnaire Tool</h4>
+      </div>
+      <h2>Sign In</h2>
+      <div class="login">
       {errorMessage && <p>{errorMessage}</p>}
       <form onSubmit={handleSubmit}>
-        <label>
-          Email:
-          <input type="email" name="email" value={email} onChange={(event) => setEmail(event.target.value)} />
+        <label><b>Email:</b>
+          <input type="email" name="email" id="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Enter your email"/>
         </label>
         <br />
-        <label>
-          Password:
-          <input type="password" name="password" value={password} onChange={(event) => setPassword(event.target.value)} />
-        </label>
         <br />
-        <button type="submit">Sign In</button>
+        <label><b>Password:</b>
+          <input type="password" name="password" id="pass" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter your password"/>
+        </label>
+        <br /><br /><br />
+        <button type="submit" class="center">Sign In</button>
       </form>
+      </div>
     </div>
   );
 }

@@ -54,7 +54,7 @@ function QuestionPage(props) {
 
   return (
     <div>
-      <h1>Question Page</h1>
+      <h2>Questions</h2>
       <form onSubmit={handleSubmit}>
         <ol>
           {questions.map((question, index) => (
